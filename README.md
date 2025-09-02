@@ -1,3 +1,98 @@
+## Arquitetura Antes do Docker Compose
+
+```mermaid
+flowchart TD
+    subgraph Usuário
+        user[Usuário]
+    end
+
+    subgraph Ambiente Local
+        flask[Flask App local]
+        db[(PostgreSQL instalado)]
+    end
+
+    user --> flask
+    flask --> db
+```
+
+## Arquitetura Depois do Docker Compose
+
+```mermaid
+flowchart TD
+    subgraph Usuário
+        user[Usuário]
+    end
+
+    subgraph Container: Flask App
+        flask[Flask API]
+    end
+
+    subgraph Docker Network
+        net[app_net]
+    end
+
+    subgraph Container: PostgreSQL
+        db[(PostgreSQL)]
+        volume[(Volume: db_data)]
+    end
+
+    user --> flask
+    flask --> net
+    net --> db
+    db --> volume
+```
+
+# Análise da Arquitetura:
+
+## 1. Serviços do Projeto:
+
+O projeto é composto por dois serviços principais:
+
+- app → API REST desenvolvida com Flask em Python. Realiza operações CRUD.
+- db   → Banco de dados PostgreSQL. Armazena os dados persistentes da aplicação.
+
+
+## 2. Mapeamento das Dependências:
+
+A relação entre os serviços é de dependência direta:
+ 
+ O serviço app depende do serviço db para funcionar corretamente. Ele se conecta ao banco via rede Docker (host=db,         port=5432). Sem o banco, o app não consegue iniciar nem realizar operações CRUD. O serviço db não depende diretamente do   app, mas não tem utilidade isolada no contexto do projeto.
+
+
+## 3. Estratégia de Conteinerização:
+
+Cada componente foi containerizado com foco em isolamento, portabilidade e escalabilidade:
+
+### app (API Flask):
+
+Imagem base: python:3.11-slim
+
+Dockerfile personalizado:
+
+ - Instala dependências via requirements.txt;
+ - Cria usuário sem privilégios (appuser);
+ - Expõe a porta 8000;
+ - Rede: Conectado à rede app_net para comunicação com o banco;
+ - Variáveis de ambiente: Usadas para configurar a conexão com o banco;
+ - Healthcheck: Verifica se o app está funcional via import do psycopg.
+
+### db (PostgreSQL):
+
+Imagem oficial: postgres:16
+
+ - Volume persistente: db_data para manter os dados mesmo após reinicializações
+ - Variáveis de ambiente: Definem nome do banco, usuário e senha
+ - Healthcheck: garante que o banco está pronto antes do app tentar conectar
+
+
+Benefícios da Arquitetura:
+
+- Modularidade: Cada serviço pode ser atualizado ou substituído independentemente;
+- Escalabilidade: Possível escalar o app ou o banco separadamente;
+- Portabilidade: Pode ser executado em qualquer ambiente com Docker;
+- Manutenção facilitada: Logs e erros são isolados por serviço.
+
+
 # Instruções de uso
 
 ## Pré-requisitos
@@ -7,12 +102,14 @@
 
 ## Estrutura do Projeto
 
+```text
 projeto-crud/
 ├── docker-compose.yml
 └── app/
     ├── Dockerfile
     ├── main.py
     └── requirements.txt
+```
 
 ## Como rodar o projeto
 
@@ -28,7 +125,7 @@ projeto-crud/
 
 4. Acesse a API com o IP público da VM: http://<IP-da-VM>:8000
 
-* Certifique-se de que a porta 8000 está liberada na máquina virtual.
+(Certifique-se de que a porta 8000 está liberada na máquina virtual)
 
 # Comandos Essenciais do Docker Compose
 
@@ -107,7 +204,7 @@ http://<IP-da-maquina>:8000/usuarios
 
     docker compose up --build -d
 
-* Executa os containers em modo "detached", permitindo fechar o terminal sem parar o serviço.
+(Executa os containers em modo "detached", permitindo fechar o terminal sem parar o serviço)
 
 # Troubleshooting Básico
 
