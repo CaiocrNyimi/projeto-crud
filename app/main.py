@@ -6,11 +6,11 @@ import time
 for i in range(10):
     try:
         conn = psycopg2.connect(
-            host=os.getenv("DB_HOST", "db"),
-            port=os.getenv("DB_PORT", "5432"),
-            dbname=os.getenv("DB_NAME", "usuarios"),
-            user=os.getenv("DB_USER", "user"),
-            password=os.getenv("DB_PASSWORD", "pass")
+            host=os.getenv("DB_HOST"),
+            port=os.getenv("DB_PORT"),
+            dbname=os.getenv("DB_NAME"),
+            user=os.getenv("DB_USER"),
+            password=os.getenv("DB_PASSWORD")
         )
         break
     except psycopg2.OperationalError:
