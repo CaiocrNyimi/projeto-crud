@@ -123,7 +123,7 @@ projeto-crud/
 
     docker compose up --build
 
-4. Acesse a API com o IP público da VM: http://<IP-da-VM>:8000
+4. Acesse a API com o IP público da VM: http://<IP-da-Máquina>:8000
 
 (Certifique-se de que a porta 8000 está liberada na máquina virtual)
 
@@ -156,12 +156,16 @@ projeto-crud/
 
 # Processo de Deploy
 
-## 1. Preparar a máquina na nuvem
+## 1. Acessar a máquina via SSH
+
+    ssh admlnx@ip-da-maquina
+
+## 2. Preparar a máquina na nuvem
 
 - Instale o Docker e Docker Compose na máquina remota.
 - Certifique se a porta 8000 está liberada no firewall e configurações da máquina virtual.
 
-## 2. Transferir os arquivos do projeto
+## 3. Transferir os arquivos do projeto
 
     git clone https://github.com/CaiocrNyimi/projeto-crud.git
 
@@ -173,10 +177,6 @@ projeto-crud/
     ├── Dockerfile
     ├── main.py
     └── requirements.txt
-
-## 3. Acessar a máquina via SSH
-
-    ssh admlnx@ip-da-maquina
 
 ## 4. Navegue até a pasta do projeto
 
